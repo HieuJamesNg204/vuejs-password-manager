@@ -14,7 +14,7 @@
             Home
           </a>
           <a 
-            href="/"
+            href="/about"
             class="text-gray-700 hover:text-blue-600 flex items-center space-x-1"
           >
             About
