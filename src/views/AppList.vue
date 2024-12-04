@@ -4,6 +4,8 @@ import { useAppStore } from '@/stores/appStore';
 
 // Modal state
 const showModal = ref(false);
+const showEditModal = ref(false);
+const showDeleteConfirmModal = ref(false);  // For delete confirmation modal
 
 // New app form state
 const newApp = ref({
@@ -11,17 +13,59 @@ const newApp = ref({
   url: '',
 });
 
+// Edit app form state
+const selectedApp = ref(null);
+
+// App to delete (used by the confirmation modal)
+const appToDelete = ref(null);
+
+// Store
 const appStore = useAppStore();
 
 onMounted(() => {
   appStore.fetchApps();
 });
 
+// Add app method
 const addApp = async () => {
   await appStore.addApp(newApp.value);
   newApp.value.name = '';
   newApp.value.url = '';
   showModal.value = false;
+};
+
+// Open edit modal
+const openEditModal = (app) => {
+  selectedApp.value = { ...app };
+  showEditModal.value = true;
+};
+
+// Edit app method
+const editApp = async () => {
+  await appStore.updateApp(selectedApp.value.id, selectedApp.value);
+  selectedApp.value = null;
+  showEditModal.value = false;
+};
+
+// Show delete confirmation modal
+const confirmDelete = (app) => {
+  appToDelete.value = app;
+  showDeleteConfirmModal.value = true;
+};
+
+// Delete app
+const deleteApp = async () => {
+  if (appToDelete.value) {
+    await appStore.deleteApp(appToDelete.value.id);
+    appToDelete.value = null; // Reset after deletion
+    showDeleteConfirmModal.value = false;
+  }
+};
+
+// Close delete confirmation modal
+const cancelDelete = () => {
+  appToDelete.value = null;
+  showDeleteConfirmModal.value = false;
 };
 </script>
 
@@ -35,6 +79,7 @@ const addApp = async () => {
           <tr>
             <th class="text-left py-2 px-4">Name</th>
             <th class="text-left py-2 px-4">URL</th>
+            <th class="text-left py-2 px-4">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -49,6 +94,20 @@ const addApp = async () => {
                 {{ app.url }}
               </a>
             </td>
+            <td class="py-2 px-4">
+              <button 
+                @click="openEditModal(app)" 
+                class="mr-1 px-3 py-1 bg-yellow-500 text-white rounded-full shadow-md hover:bg-yellow-400 transition transform hover:scale-105"
+              >
+                Edit
+              </button>
+              <button 
+                @click="confirmDelete(app)" 
+                class="px-3 py-1 bg-red-500 text-white rounded-full shadow-md hover:bg-red-400 transition transform hover:scale-105"
+              >
+                Delete
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -58,13 +117,13 @@ const addApp = async () => {
     <div class="mt-6">
       <button 
         @click="showModal = true" 
-        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        class="px-4 py-2 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-500 transition transform hover:scale-105"
       >
         Add New App
       </button>
     </div>
 
-    <!-- Modal -->
+    <!-- Add App Modal -->
     <transition name="fade">
       <div 
         v-if="showModal" 
@@ -99,18 +158,96 @@ const addApp = async () => {
               <button 
                 type="button" 
                 @click="showModal = false" 
-                class="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-full shadow-md hover:bg-gray-400 transition transform hover:scale-105"
               >
                 Cancel
               </button>
               <button 
                 type="submit" 
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                class="px-4 py-2 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-500 transition transform hover:scale-105"
               >
                 Save
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Edit App Modal -->
+    <transition name="fade">
+      <div 
+        v-if="showEditModal" 
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      >
+        <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+          <h3 class="text-lg font-bold mb-4">Edit App</h3>
+          <form @submit.prevent="editApp">
+            <div class="mb-4">
+              <label for="edit-name" class="block text-gray-700">Name</label>
+              <input 
+                id="edit-name" 
+                v-model="selectedApp.name" 
+                type="text" 
+                placeholder="App Name"
+                class="w-full border border-gray-300 rounded-md p-2 mt-1"
+                required
+              />
+            </div>
+            <div class="mb-4">
+              <label for="edit-url" class="block text-gray-700">URL</label>
+              <input 
+                id="edit-url" 
+                v-model="selectedApp.url" 
+                type="url" 
+                placeholder="App URL"
+                class="w-full border border-gray-300 rounded-md p-2 mt-1"
+                required
+              />
+            </div>
+            <div class="flex justify-end space-x-2">
+              <button 
+                type="button" 
+                @click="showEditModal = false" 
+                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-full shadow-md hover:bg-gray-400 transition transform hover:scale-105"
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                class="px-4 py-2 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-500 transition transform hover:scale-105"
+              >
+                Save
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Delete Confirmation Modal -->
+    <transition name="fade">
+      <div 
+        v-if="showDeleteConfirmModal" 
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      >
+        <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+          <h3 class="text-lg font-bold mb-4">Are you sure?</h3>
+          <p class="mb-4">Do you really want to delete this app? This action cannot be undone.</p>
+          <div class="flex justify-end space-x-2">
+            <button 
+              @click="cancelDelete" 
+              class="px-4 py-2 bg-gray-300 text-gray-700 rounded-full shadow-md hover:bg-gray-400 transition transform hover:scale-105"
+            >
+              Cancel
+            </button>
+            <button 
+              @click="deleteApp" 
+              class="px-4 py-2 bg-red-500 text-white rounded-full shadow-md hover:bg-red-400 transition transform hover:scale-105"
+            >
+              Delete
+            </button>
+          </div>
         </div>
       </div>
     </transition>

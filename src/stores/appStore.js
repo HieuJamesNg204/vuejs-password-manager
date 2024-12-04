@@ -16,13 +16,35 @@ export const useAppStore = defineStore('appStore', {
         alert('There was an unexpected error fetching the apps');
       }
     },
+
     async addApp(newApp) {
       try {
         const { data } = await axios.post(API_URL, newApp);
-        this.apps.push(data); // Assuming the API returns the new app with an ID
+        this.apps.push(data);
       } catch (error) {
         alert('There was an unexpected error adding the app');
       }
     },
+
+    async updateApp(id, updated) {
+      try {
+        const { data } = await axios.put(`${API_URL}/${id}`, updated);
+        const index = this.apps.findIndex(app => app.id === id);
+        if (index !== -1) {
+          this.apps[index] = data;
+        }
+      } catch (error) {
+        alert('There was an unexpected error adding the app');
+      }
+    },
+
+    async deleteApp(id) {
+      try {
+        const { data } = await axios.delete(`${API_URL}/${id}`);
+        this.apps = this.apps.filter(app => app.id !== id);
+      } catch (error) {
+        alert('There was an unexpected error adding the app');
+      }
+    }
   },
 });
