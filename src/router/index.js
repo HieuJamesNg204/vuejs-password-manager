@@ -1,6 +1,7 @@
 import About from '@/views/About.vue';
 import AppList from '@/views/AppList.vue';
 import NotFound from '@/views/NotFound.vue';
+import PasswordManagement from '@/views/PasswordManagement.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
@@ -15,6 +16,11 @@ const router = createRouter({
       path: '/about',
       name: 'about',
       component: About,
+    },
+    {
+      path: '/app/:appId/passwords',
+      name: 'passwords',
+      component: PasswordManagement
     },
     {
       path: '/:pathMatch(.*)*',

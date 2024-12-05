@@ -1,6 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useAppStore } from '@/stores/appStore';
+import { useRouter } from 'vue-router';
+
+// Router
+const router = useRouter();
 
 // Modal state
 const showModal = ref(false);
@@ -19,11 +23,14 @@ const selectedApp = ref(null);
 // App to delete (used by the confirmation modal)
 const appToDelete = ref(null);
 
+// Search query
+const searchQuery = ref('');
+
 // Store
 const appStore = useAppStore();
 
 onMounted(() => {
-  appStore.fetchApps();
+  appStore.fetchApps(searchQuery.value);
 });
 
 // Add app method
@@ -67,13 +74,52 @@ const cancelDelete = () => {
   appToDelete.value = null;
   showDeleteConfirmModal.value = false;
 };
+
+// Redirect to passwords page
+const viewPasswords = (appId) => {
+  router.push(`/app/${appId}/passwords`);
+};
+
+// Watch for changes in searchQuery
+watch(searchQuery, (newQuery) => {
+  appStore.fetchApps(newQuery);
+});
 </script>
 
 <template>
   <div class="pt-16 p-6 max-w-6xl mx-auto">
     <!-- App List -->
     <div>
-      <h2 class="text-2xl font-bold text-gray-800 mb-4">Apps</h2>
+      <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Apps</h2>
+      <div class="flex justify-center mb-6">
+        <!-- Search Input -->
+        <div class="relative flex items-center w-full max-w-md">
+          <!-- Magnifying Glass Icon -->
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke-width="2" 
+            stroke="currentColor" 
+            class="absolute left-3 w-5 h-5 text-gray-400 transition-all duration-300 group-focus-within:text-blue-500"
+          >
+            <path 
+              stroke-linecap="round" 
+              stroke-linejoin="round" 
+              d="M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35"
+            />
+          </svg>
+
+          <!-- Input Field -->
+          <input 
+            v-model="searchQuery"
+            type="text" 
+            placeholder="Search apps..." 
+            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-300 text-gray-700 placeholder-gray-400 focus:border-blue-500 hover:ring-2 hover:ring-blue-200"
+          />
+        </div>
+      </div>
+
       <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
         <thead class="bg-gray-200 text-gray-700">
           <tr>
@@ -95,6 +141,12 @@ const cancelDelete = () => {
               </a>
             </td>
             <td class="py-2 px-4">
+              <button 
+                @click="viewPasswords(app.id)" 
+                class="mr-1 px-3 py-1 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-400 transition transform hover:scale-105"
+              >
+                View Passwords
+              </button>
               <button 
                 @click="openEditModal(app)" 
                 class="mr-1 px-3 py-1 bg-yellow-500 text-white rounded-full shadow-md hover:bg-yellow-400 transition transform hover:scale-105"

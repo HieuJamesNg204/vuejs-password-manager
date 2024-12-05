@@ -5,15 +5,15 @@ const API_URL = 'http://localhost:8080/api/apps';
 
 export const useAppStore = defineStore('appStore', {
   state: () => ({
-    apps: [],
+    apps: []
   }),
   actions: {
-    async fetchApps() {
+    async fetchApps(searchQuery) {
       try {
-        const { data } = await axios.get(API_URL);
+        const { data } = await axios.get(searchQuery ? `${API_URL}?name=${searchQuery}` : API_URL);
         this.apps = data;
       } catch (error) {
-        alert('There was an unexpected error fetching the apps');
+        alert('There was an unexpected error fetching apps');
       }
     },
 
@@ -43,8 +43,18 @@ export const useAppStore = defineStore('appStore', {
         const { data } = await axios.delete(`${API_URL}/${id}`);
         this.apps = this.apps.filter(app => app.id !== id);
       } catch (error) {
-        alert('There was an unexpected error adding the app');
+        alert('There was an unexpected error deleting the app');
+      }
+    },
+
+    async fetchAppById(id) {
+      try {
+        const { data } = await axios.get(`${API_URL}/${id}`);
+        return data; // Return the fetched app
+      } catch (error) {
+        alert('There was an unexpected error fetching the app by ID');
+        return null; // Handle the error gracefully
       }
     }
-  },
+  }
 });
