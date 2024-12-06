@@ -34,6 +34,9 @@ const passwordToDelete = ref(null);
 const passwordStore = usePasswordStore();
 const appStore = useAppStore();
 
+// For successful attempt to copy
+const showCopySuccess = ref(false);
+
 onMounted(async () => {
   app.value = await appStore.fetchAppById(route.params.appId);
   await passwordStore.fetchPasswords(route.params.appId);
@@ -83,14 +86,30 @@ const deletePassword = async () => {
     showDeleteConfirmModal.value = false;
   }
 };
+
+// Copy password
+const copyToClipboard = async (password) => {
+  try {
+    await navigator.clipboard.writeText(password.password);
+    showCopySuccess.value = true;
+
+    // Hide the dialog after 3 seconds
+    setTimeout(() => {
+      showCopySuccess.value = false;
+    }, 3000);
+  } catch (err) {
+    console.error('Failed to copy password: ', err);
+  }
+};
 </script>
 
 <template>
   <div class="pt-16 p-6 max-w-6xl mx-auto">
-    <div class="flex">
+    <div class="flex justify-center">
       <button
         @click="router.back()"
         class="mr-2 w-8 h-8 flex items-center justify-center bg-gray-300 text-gray-700 rounded-full shadow-md hover:bg-gray-400 transition transform hover:scale-105"
+        title="Go back"
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
@@ -107,7 +126,7 @@ const deletePassword = async () => {
           />
         </svg>
       </button>
-      <h2 class="text-2xl font-bold text-gray-800 mb-4">Passwords for {{ app.name }}</h2>
+      <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Passwords for {{ app.name }}</h2>
     </div>
 
     <!-- Add Password Button -->
@@ -143,11 +162,54 @@ const deletePassword = async () => {
               readonly 
               class="w-full border border-gray-300 rounded-md p-2"
             />
+            <!-- Show/Hide button -->
             <button 
               @click="togglePasswordVisibility(password)" 
               class="px-2 py-1 bg-gray-300 text-gray-700 rounded-full shadow-md hover:bg-gray-400 transition transform hover:scale-105"
+              :title="password.show ? 'Hide' : 'Show'"
             >
-              {{ password.show ? 'Hide' : 'Show' }}
+              <svg v-if="password.show" 
+                xmlns="http://www.w3.org/2000/svg" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke-width="2" 
+                stroke="currentColor" 
+                class="w-5 h-5"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+                <line x1="2" y1="2" x2="22" y2="22"></line>
+              </svg>
+              <svg 
+                v-else 
+                xmlns="http://www.w3.org/2000/svg" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke-width="2" 
+                stroke="currentColor" 
+                class="w-5 h-5"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+            <!-- Copy button -->
+            <button 
+              @click="copyToClipboard(password)" 
+              class="px-2 py-1 bg-green-500 text-white rounded-full shadow-md hover:bg-green-400 transition transform hover:scale-105"
+              title="Copy"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke-width="2" 
+                stroke="currentColor" 
+                class="w-5 h-5"
+              >
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <rect x="3" y="3" width="13" height="13" rx="2" ry="2"></rect>
+              </svg>
             </button>
           </div>
         </div>
@@ -320,6 +382,30 @@ const deletePassword = async () => {
             </button>
           </div>
         </div>
+      </div>
+    </transition>
+
+    <!-- Success dialogue -->
+    <transition name="fade">
+      <div 
+        v-if="showCopySuccess" 
+        class="fixed bottom-8 right-8 bg-white-500 text-black py-2 px-4 rounded-full shadow-lg flex items-center space-x-2"
+      >
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          fill="none" 
+          viewBox="0 0 24 24" 
+          stroke-width="2" 
+          stroke="currentColor" 
+          class="w-6 h-6"
+        >
+          <path 
+            stroke-linecap="round" 
+            stroke-linejoin="round" 
+            d="M5 13l4 4L19 7" 
+          />
+        </svg>
+        <span>Password copied to clipboard!</span>
       </div>
     </transition>
   </div>

@@ -7,7 +7,7 @@ const developer = {
   name: 'Hieu JavaPaws',
   role: 'Java Developer',
   bio: 'I am passionate about building web applications that are both functional and delightful to use. This app is a reflection of my commitment to simplicity and efficiency.',
-  image: 'https://scontent.fsgn2-6.fna.fbcdn.net/v/t39.30808-6/468963619_2140324639698651_8136222292551908614_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeENhMQvEpLFZvRvm4KpOyJ8k_cKz7inUV-T9wrPuKdRX_yCPmwCcXqSV4NxpFkfTypC5fuoySBxAecWWPDLT6tR&_nc_ohc=zIuPpbA6i4QQ7kNvgEoE2R5&_nc_zt=23&_nc_ht=scontent.fsgn2-6.fna&_nc_gid=AqsUxvBB4yL-NNk_0wmboaA&oh=00_AYCZhnOf_QsSx8raAdy2iq6PbyilTNQWePXHPDbHtvqOXg&oe=6755E3A7', // Replace with your image URL
+  image: 'https://scontent.fdad1-2.fna.fbcdn.net/v/t39.30808-6/469381615_2143883642676084_201204658095058450_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeH7Ol---3I12XsKTWKLTwy-kfUVM6mGKaCR9RUzqYYpoN-GDk8bEGskyXeHvdx4l7qaqX-BlOu7doMy2wy-EIqq&_nc_ohc=SBuDldSZ5sgQ7kNvgGKYYkZ&_nc_zt=23&_nc_ht=scontent.fdad1-2.fna&_nc_gid=Auy710mrBQ6eaHqmh5lgGvr&oh=00_AYCWZJ3W2P4H85ZTWNAGrUG_lOdacQ3SszHmdSEmsimacQ&oe=67584CB5',
   socialLinks: [
     {
       name: 'Facebook',
